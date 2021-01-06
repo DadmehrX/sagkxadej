@@ -16,7 +16,7 @@ module.exports = {
 
     const PRUNING = config ? config.PRUNING : process.env.PRUNING;
 
-
+    const queue = message.client.queue.get(message.guild.id);
 
     let stream = null;
     let streamType = song.url.includes("youtube.com") ? "opus" : "ogg/opus";
@@ -42,6 +42,7 @@ module.exports = {
       return message.channel.send(`Error: ${error.message ? error.message : error}`);
     }
 
+    queue.connection.on("disconnect", () => message.client.queue.delete(message.guild.id));
 
     const dispatcher = queue.connection
       .play(stream, { type: streamType })
