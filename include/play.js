@@ -16,6 +16,40 @@ module.exports = {
 
     const PRUNING = config ? config.PRUNING : process.env.PRUNING;
 
+    const queue = message.client.queue.get(message.guild.id);
+
+    if (!song) {
+      setTimeout(function () {
+        if (queue.connection.dispatcher && message.guild.me.voice.channel) return;
+      },);
+      return message.client.queue.delete(message.guild.id);
+    }
+
+    let stream = null;
+    let streamType = song.url.includes("youtube.com") ? "opus" : "ogg/opus";
+
+    try {
+      if (song.url.includes("youtube.com")) {
+        stream = await ytdl(song.url, { highWaterMark: 1 << 25 });
+      } else if (song.url.includes("soundcloud.com")) {
+        try {
+          stream = await scdl.downloadFormat(song.url, scdl.FORMATS.OPUS, SOUNDCLOUD_CLIENT_ID);
+        } catch (error) {
+          stream = await scdl.downloadFormat(song.url, scdl.FORMATS.MP3, SOUNDCLOUD_CLIENT_ID);
+          streamType = "unknown";
+        }
+      }
+    } catch (error) {
+      if (queue) {
+        queue.songs.shift();
+        module.exports.play(queue.songs[0], message);
+      }
+
+      console.error(error);
+      return message.channel.send(`Error: ${error.message ? error.message : error}`);
+    }
+
+    queue.connection.on("disconnect", () => message.client.queue.delete(message.guild.id));
 
     const dispatcher = queue.connection
       .play(stream, { type: streamType })
