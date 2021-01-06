@@ -8,7 +8,7 @@ const { TOKEN, PREFIX } = require("./util/EvobotUtil");
 
 const client = new Client({ disableMentions: "everyone" });
 
-client.login(process.env.TOKEN);
+client.login(TOKEN);
 client.commands = new Collection();
 client.prefix = PREFIX;
 client.queue = new Map();
@@ -20,7 +20,7 @@ const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
  */
 client.on("ready", () => {
   console.log(`${client.user.username} ready!`);
-  client.user.setActivity(`radio DVN`, { type: "LISTENING" });
+  client.user.setActivity(`${PREFIX}` play Deklame, { type: "LISTENING" });
 });
 client.on("warn", (info) => console.log(info));
 client.on("error", console.error);
